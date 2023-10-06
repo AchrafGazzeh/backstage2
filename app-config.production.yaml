@@ -1,0 +1,145 @@
+app:
+  # Should be the same as backend.baseUrl when using the `app-backend` plugin.
+  baseUrl: http://localhost:7007
+
+backend:
+  # Note that the baseUrl should be the URL that the browser and other clients
+  # should use when communicating with the backend, i.e. it needs to be
+  # reachable not just from within the backend host, but from all of your
+  # callers. When its value is "http://localhost:7007", it's strictly private
+  # and can't be reached by others.
+  baseUrl: http://localhost:7007
+  # The listener can also be expressed as a single <host>:<port> string. In this case we bind to
+  # all interfaces, the most permissive setting. The right value depends on your specific deployment.
+  listen: ':7007'
+
+  # config options: https://node-postgres.com/api/client
+  database:
+    client: pg
+    connection:
+      host: ep-little-credit-48209218-pooler.ap-southeast-1.aws.neon.tech
+      port: 5432
+      user: postgres
+      password: oeTCngzD2w8f
+      # https://node-postgres.com/features/ssl
+      # you can set the sslmode configuration option via the `PGSSLMODE` environment variable
+      # see https://www.postgresql.org/docs/current/libpq-ssl.html Table 33.1. SSL Mode Descriptions (e.g. require)
+      ssl:
+        require: true
+        rejectUnauthorized: false
+      #   ca: # if you have a CA file and want to verify it you can uncomment this section
+      #     $file: <file-path>/ca/server.crt
+    knexConfig:
+      pool:
+        min: 15
+        max: 30
+        acquireTimeoutMillis: 60000
+        createTimeoutMillis: 30000
+        destroyTimeoutMillis: 5000
+        idleTimeoutMillis: 60000
+        reapIntervalMillis: 1000
+        createRetryIntervalMillis: 200
+        propagateCreateError: false
+
+integrations:
+  github:
+    - host: github.com
+      # This is a Personal Access Token or PAT from GitHub. You can find out how to generate this token, and more information
+      # about setting up the GitHub integration here: https://backstage.io/docs/getting-started/configuration#setting-up-a-github-integration
+      token: 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
+    ### Example for how to add your GitHub Enterprise instance using the API:
+    # - host: ghe.example.net
+    #   apiBaseUrl: https://ghe.example.net/api/v3
+    #   token: ${GHE_TOKEN}
+  awsS3:
+    - accessKeyId: ${AWS_ACCESS_KEY_ID}
+    - secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+
+proxy:
+  ### Example for how to add a proxy endpoint for the frontend.
+  ### A typical reason to do this is to handle HTTPS and CORS for internal services.
+  # endpoints:
+  #   '/test':
+  #     target: 'https://example.com'
+  #     changeOrigin: true
+
+# Reference documentation http://backstage.io/docs/features/techdocs/configuration
+# Note: After experimenting with basic setup, use CI/CD to generate docs
+# and an external cloud storage when deploying TechDocs for production use-case.
+# https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+techdocs:
+  builder: 'local' # Alternatives - 'external'
+  generator:
+    runIn: 'docker' # Alternatives - 'local'
+  publisher:
+    type: 'local' # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+
+auth:
+  # see https://backstage.io/docs/auth/ to learn about auth providers
+  environment: development
+  providers:
+    github:
+      development:
+        clientId: 487bc5030d38f39dba18
+        clientSecret: 00a3ac9636ce5aef01ab0dc7025b9bfd91df0b58
+
+scaffolder:
+  # see https://backstage.io/docs/features/software-templates/configuration for software template options
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    # Local example data, file locations are relative to the backend process, typically `packages/backend`
+    - type: file
+      target: ../../examples/entities.yaml
+
+    # Local example template    
+    - type: file
+      target: ../../examples/cra/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ../../examples/springboot/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ../../examples/react-ssr-template/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ../../examples/golang-microservice/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ../../examples/pr-action-template/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ../../examples/documentation-template/template.yaml
+      rules:
+        - allow: [Template]
+
+    # Local example organizational data
+    - type: file
+      target: ../../examples/org.yaml
+      rules:
+        - allow: [User, Group]
+
+    ## Uncomment these lines to add more example data
+    # - type: url
+    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+
+    ## Uncomment these lines to add an example org
+    # - type: url
+    #   target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
+    #   rules:
+    #     - allow: [User, Group]
